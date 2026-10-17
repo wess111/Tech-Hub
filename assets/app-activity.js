@@ -1,5 +1,5 @@
 /*
-  Server Admin Academy – Activity Runner
+  Tech-Hub – Activity Runner
   - Progressive workflow (triage -> diagnosis -> fix -> change note)
   - Gamified validation (MCQ with correct index per stage)
   - Ticket queue status (PENDING / IN PROGRESS / RESOLVED)
@@ -103,10 +103,10 @@
       typeof v === "object" &&
       typeof v.q === "string" &&
       Array.isArray(v.options) &&
-      v.options.length === 4 &&
+      v.options.length >= 2 &&
       Number.isInteger(v.correct) &&
       v.correct >= 0 &&
-      v.correct <= 3
+      v.correct < v.options.length
     );
   }
 
@@ -935,9 +935,9 @@ Notes:`;
   function wireHomeLink() {
     const a = document.querySelector(".home-link");
     if (!a) return;
-    const href = getReturnHref();
+    const href = "./index.html?view=labs";
     a.href = href;
-    a.textContent = "← Back";
+    a.textContent = "← All labs";
   }
 
   function renderCompletionPanel() {
@@ -996,7 +996,7 @@ Notes:`;
     const byCat = computeCategoryHealth();
 
     const lines = [];
-    lines.push("Server Admin Academy");
+    lines.push("Tech-Hub");
     lines.push(`${lab.title} — Report`);
     lines.push("");
     lines.push(`Analyst: ${meta.analystName}`);

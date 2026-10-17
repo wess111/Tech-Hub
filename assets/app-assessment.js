@@ -1074,7 +1074,7 @@ function generateReport(score, total, percentage, passed) {
       </style>
     </head>
     <body>
-      <h1>Server Admin Academy</h1>
+      <h1>Tech-Hub</h1>
       <h2>Assessment Completion Report</h2>
 
       <div class="meta">
