@@ -42,7 +42,7 @@
     "difficulty": "beginner",
     "status": "available",
     "link": "./simulator.html?id=pc-demo",
-    "description": "A simplified instructor-led build for demonstrating component research, compatibility, assembly, POST, validation, and reporting."
+    "description": "A simplified instructor-led build for demonstrating component research, compatibility, assembly, POST, validation, and reporting. Hardware planning and the retained 2D assembly exercise are available; exact 3D component models are in development."
   },
   {
     "title": "Business Workstation Build",
@@ -51,7 +51,16 @@
     "difficulty": "beginner",
     "status": "available",
     "link": "./simulator.html?id=pc-hardware",
-    "description": "Replace a finance workstation while balancing compatibility, integrated graphics, storage, display support, and a strict business budget."
+    "description": "Compare Intel and AMD platforms, choose hardware for a finance workstation within a $700 teaching budget, and continue to the retained 2D assembly exercise."
+  },
+  {
+    "title": "3D PC Assembly Lab",
+    "domain": "support-operations",
+    "mode": "simulations",
+    "difficulty": "beginner",
+    "status": "available",
+    "link": "./simulator.html?id=pc-reference",
+    "description": "Rotate the case, drag components into keyed mounting points, operate the CPU socket and memory clips, apply thermal compound, and route ten cable connections."
   },
   {
     "title": "Architectural Design Workstation",
@@ -60,7 +69,7 @@
     "difficulty": "advanced",
     "status": "available",
     "link": "./simulator.html?id=pc-architect",
-    "description": "Build a high-performance CAD and rendering workstation with dual-channel memory, strong multicore CPU performance, NVMe storage, and dedicated graphics."
+    "description": "Build a high-performance CAD and rendering workstation with dual-channel memory, strong multicore CPU performance, NVMe storage, and dedicated graphics. Hardware planning and the retained 2D assembly exercise are available; exact 3D component models are in development."
   },
   {
     "title": "1440p Gaming PC Build",
@@ -69,7 +78,7 @@
     "difficulty": "intermediate",
     "status": "available",
     "link": "./simulator.html?id=pc-gaming",
-    "description": "Build a balanced gaming PC using Intel or AMD platforms, dual-channel memory, dedicated NVIDIA or Radeon graphics, cooling, and power decisions."
+    "description": "Build a balanced gaming PC using Intel or AMD platforms, dual-channel memory, dedicated NVIDIA or Radeon graphics, cooling, and power decisions. Hardware planning and the retained 2D assembly exercise are available; exact 3D component models are in development."
   },
   {
     "title": "Cloud Tenant Provisioning",

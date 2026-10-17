@@ -934,6 +934,7 @@ function renderResultsStep(container) {
   const total = assessment.activities.length;
   const percentage = Math.round((score / total) * 100);
   const passed = percentage >= assessment.passScore;
+  window.TechHubProgress?.record({started:true, completed:passed, score:percentage});
   const finalAttempt = currentAttempt >= assessment.attemptsAllowed;
 
   const summary = document.createElement("div");
@@ -1073,7 +1074,7 @@ function generateReport(score, total, percentage, passed) {
       </style>
     </head>
     <body>
-      <h1>Server Admin Academy</h1>
+      <h1>Tech-Hub</h1>
       <h2>Assessment Completion Report</h2>
 
       <div class="meta">
