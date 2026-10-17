@@ -934,6 +934,7 @@ function renderResultsStep(container) {
   const total = assessment.activities.length;
   const percentage = Math.round((score / total) * 100);
   const passed = percentage >= assessment.passScore;
+  window.TechHubProgress?.record({started:true, completed:passed, score:percentage});
   const finalAttempt = currentAttempt >= assessment.attemptsAllowed;
 
   const summary = document.createElement("div");

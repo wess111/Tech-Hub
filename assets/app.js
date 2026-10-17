@@ -6,7 +6,7 @@
 // Project-wide visual system: one uniform page background, with depth handled by panels/cards.
 const uniformTheme = document.createElement("link");
 uniformTheme.rel = "stylesheet";
-uniformTheme.href = "./assets/uniform-theme.css?v=1.0.0";
+uniformTheme.href = new URL("uniform-theme.css?v=1.0.0", document.currentScript.src).href;
 document.head.appendChild(uniformTheme);
 
 const MODES = [
@@ -36,15 +36,16 @@ function initDropdowns() {
       e.stopPropagation();
       drops.forEach(d => { if (d !== drop) d.classList.remove("isOpen"); });
       drop.classList.toggle("isOpen");
+      drops.forEach(d => d.querySelector(".navDropBtn")?.setAttribute("aria-expanded", String(d.classList.contains("isOpen"))));
     });
   });
 
   document.addEventListener("click", () => {
-    drops.forEach(d => d.classList.remove("isOpen"));
+    drops.forEach(d => { d.classList.remove("isOpen"); d.querySelector(".navDropBtn")?.setAttribute("aria-expanded", "false"); });
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") drops.forEach(d => d.classList.remove("isOpen"));
+    if (e.key === "Escape") drops.forEach(d => { d.classList.remove("isOpen"); d.querySelector(".navDropBtn")?.setAttribute("aria-expanded", "false"); });
   });
 }
 

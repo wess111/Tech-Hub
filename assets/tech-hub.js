@@ -1,0 +1,46 @@
+(() => {
+  'use strict';
+  const root = document.querySelector('#hub');
+  const key = 'tech-hub-progress-v1';
+  const read = () => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const id = link => { const u = new URL(link, location.href); return u.pathname.split('/').pop() + u.search; };
+  window.TechHubProgress = {
+    record(patch) {
+      const all = read(), activityId = id(location.href), before = all[activityId] || {};
+      all[activityId] = {...before, ...patch, completed: Boolean(before.completed || patch.completed), updatedAt: Date.now()};
+      try { localStorage.setItem(key, JSON.stringify(all)); } catch { /* Activities remain usable if storage is blocked. */ }
+    }
+  };
+  if (!root) { window.TechHubProgress.record({started:true}); return; }
+  let catalog = [], view = new URLSearchParams(location.search).get('view') || 'home';
+  if (!['home','labs','dashboard','paths','leaderboard'].includes(view)) view = 'home';
+  const modes = {'incident-scenarios':'Incident response','simulations':'Hardware simulation','knowledge-assessments':'Assessment','capstone-projects':'Capstone','guided-practice':'Guided practice'};
+  const domains = {'support-operations':'IT Support','systems-engineering':'Systems & Cloud','security-operations':'Cybersecurity'};
+  const nav = [['home','Overview'],['labs','Explore labs'],['paths','Learning paths'],['dashboard','My learning'],['leaderboard','Leaderboard']];
+  function card(a) { const p = read()[id(a.link)] || {}; return `<article class="card"><span class="chip">${esc(modes[a.mode])}</span><h3>${esc(a.title)}</h3><p>${esc(a.description)}</p><div class="card-foot"><span>${esc(a.difficulty)} · ${p.completed?'Completed':p.started?'Started':'Not started'}</span><a href="${esc(a.link)}">${p.started?'Continue':'Launch lab'} ↗</a></div></article>`; }
+  function cards(items) { return items.length ? `<div class="grid">${items.map(card).join('')}</div>` : '<p class="empty">No activities match this selection.</p>'; }
+  function paths() { return `<div class="grid">${Object.entries(domains).map(([k,v],i)=>`<a class="path" href="?view=labs&domain=${k}"><span class="eyebrow">TRACK 0${i+1}</span><strong>${v}</strong><span>${catalog.filter(a=>a.domain===k).length} available activities · Explore track →</span></a>`).join('')}</div>`; }
+  function render() {
+    const progress = read(), started = catalog.filter(a=>progress[id(a.link)]?.started), complete = catalog.filter(a=>progress[id(a.link)]?.completed);
+    document.title = `${nav.find(n=>n[0]===view)[1]} · Tech-Hub`;
+    root.innerHTML = `<a class="skip" href="#main">Skip to content</a><aside class="sidebar"><a class="brand" href="index.html">tech<b>-hub</b><small>BUILD. BREAK. UNDERSTAND.</small></a><nav class="nav" aria-label="Main navigation">${nav.map(([k,v])=>`<a href="?view=${k}" ${view===k?'aria-current="page"':''}>${v}</a>`).join('')}<a href="tools/index.html">Documentation tools ↗</a></nav><div class="side-note"><span class="eyebrow">Your next skill starts here</span><p>Practical technology learning.<br>Open to every curious mind.</p></div></aside><div class="shell"><header class="topbar"><span>Workspace / ${nav.find(n=>n[0]===view)[1]}</span><span class="guest">Guest workspace</span></header><main id="main">${view==='home'?`<section class="hero"><div><span class="eyebrow">LESS THEORY. MORE DOING.</span><h1>Build skills.<br>Solve real problems.</h1><p>Your space to explore IT, cloud, hardware, and cybersecurity through hands-on challenges. Pick a lab and put your knowledge to work.</p><div class="actions"><a class="button" href="?view=labs">Explore the labs ↗</a><a class="button secondary" href="?view=paths">Find your learning path</a></div></div><div class="feature"><span class="chip">Featured simulation</span><div class="board-art" aria-hidden="true"><div class="cpu">PC BUILD<br>WORKBENCH</div></div><h3>Your next build starts on the workbench.</h3><p>Choose components. Connect the power. Make it POST.</p><a href="simulator.html?id=pc-hardware" class="button secondary">Enter PC Builder ↗</a></div></section>`:`<section style="padding:38px 0 12px"><span class="eyebrow">YOUR TECH-HUB WORKSPACE</span><h1>${({labs:'Find your next challenge.',dashboard:'Keep your momentum.',paths:'Choose your direction.',leaderboard:'A place to raise the bar.'})[view]}</h1></section>`}<div class="stats"><div class="stat"><strong>${catalog.length}</strong><span>Available activities</span></div><div class="stat"><strong>${started.length}</strong><span>Activities started</span></div><div class="stat"><strong>${complete.length}</strong><span>Activities completed</span></div></div><div id="content"></div></main><footer>TECH-HUB · Learn by doing. <span>Progress is saved in this browser. Accounts and shared rankings are planned.</span></footer></div>`;
+    const content = document.querySelector('#content');
+    if(view==='home') content.innerHTML=`<div class="section-head"><div><span class="eyebrow">PUT YOUR SKILLS TO WORK</span><h2>Recommended starting points</h2></div><a href="?view=labs">View all labs →</a></div>${cards(catalog.filter(a=>['./activity.html?lab=dns','./simulator.html?id=pc-hardware','./assessment.html?lab=cloud-tenant-provisioning'].includes(a.link)))}<div class="section-head"><h2>Explore a learning track</h2></div>${paths()}`;
+    if(view==='paths') content.innerHTML=`<p>Explore activities by discipline. Start with beginner exercises and work toward integrated challenges.</p>${paths()}<div class="notice">Cybersecurity content is in development. Available tracks reflect the activities you can launch today.</div>`;
+    if(view==='leaderboard') content.innerHTML='<div class="notice"><h2>Competition is coming.</h2><p>Shared rankings will launch alongside accounts and verified challenge scoring. Your local practice progress is available now in My learning.</p><a class="button" href="?view=labs">Build your skills ↗</a></div>';
+    if(view==='dashboard') {
+      content.innerHTML=`<div class="section-head"><h2>Your activity history</h2></div><p>Completed means all tickets resolved, an assessment passed, or a simulator build validated. Capstone reading progress is tracked separately within the project.</p>${started.length?cards(started.sort((a,b)=>progress[id(b.link)].updatedAt-progress[id(a.link)].updatedAt)):'<div class="empty"><h2>A fresh start.</h2><p>Launch your first activity to begin building your learning history.</p><a class="button" href="?view=labs">Find a lab ↗</a></div>'}<div class="actions"><button class="button secondary" id="export">Export progress</button><button class="button secondary" id="reset">Reset dashboard history</button></div><p id="status" role="status"></p>`;
+      document.querySelector('#export').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,progress:read()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='tech-hub-progress.json';a.click();URL.revokeObjectURL(url);};
+      document.querySelector('#reset').onclick=()=>{if(confirm('Reset the Tech-Hub dashboard history? Individual activity answers and builds will remain saved.')){try{localStorage.removeItem(key);render();}catch{document.querySelector('#status').textContent='Browser storage is unavailable.';}}};
+    }
+    if(view==='labs') {
+      content.innerHTML=`<div class="filters"><input type="search" id="search" aria-label="Search activities" placeholder="Search topics, tools, or challenges…"><select id="domain" aria-label="Filter by track"><option value="all">All tracks</option>${Object.entries(domains).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><select id="difficulty" aria-label="Filter by difficulty"><option value="all">All levels</option><option>beginner</option><option>intermediate</option><option>advanced</option></select></div><p id="count" role="status"></p><div id="results"></div>`;
+      const domain=document.querySelector('#domain'),search=document.querySelector('#search'),difficulty=document.querySelector('#difficulty');
+      const initial=new URLSearchParams(location.search).get('domain');if(Object.hasOwn(domains,initial))domain.value=initial;
+      function filter(){const q=search.value.trim().toLowerCase(),items=catalog.filter(a=>(domain.value==='all'||a.domain===domain.value)&&(difficulty.value==='all'||a.difficulty===difficulty.value)&&`${a.title} ${a.description}`.toLowerCase().includes(q));document.querySelector('#count').textContent=`${items.length} available activities`;document.querySelector('#results').innerHTML=cards(items);}
+      [domain,search,difficulty].forEach(el=>el.addEventListener('input',filter));filter();
+    }
+  }
+  fetch('./data/activities.json').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{catalog=data.filter(a=>a.status==='available');render();}).catch(()=>{root.innerHTML='<main class="empty"><h1>Unable to load the workspace.</h1><p>Check your connection and refresh to try again.</p><a href="index.html">Reload workspace</a></main>';});
+})();

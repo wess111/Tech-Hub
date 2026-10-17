@@ -85,6 +85,7 @@
 
   function saveTicketState(ticketId, state) {
     state.lastTouchedAt = Date.now();
+    window.TechHubProgress?.record({started:true, completed:tickets.length > 0 && tickets.every(t => t.id === ticketId ? computeResolved(state) : computeResolved(loadTicketState(t.id)))});
     writeJSON(lsKey(ticketId), state);
   }
 
@@ -1277,10 +1278,10 @@ Notes:`;
     document.title = `${lab.title} • Activity`;
 
     $("#labTitleTop").textContent = lab.title;
-    $("#labSubTop").textContent = `${lab.track} • ${lab.subject} • ${tickets.length} tickets`;
+    $("#labSubTop").textContent = `${lab.track || "IT Practice"} • ${lab.subject || "Troubleshooting"} • ${tickets.length} tickets`;
     $("#labTitle").textContent = lab.title;
     $("#labDesc").textContent = lab.description;
-    $("#footerLeft").textContent = `${lab.track} • ${lab.subject}`;
+    $("#footerLeft").textContent = `${lab.track || "IT Practice"} • ${lab.subject || "Troubleshooting"}`;
     if (lab.rolePill) $("#rolePill").textContent = lab.rolePill;
 
     wireHomeLink();
