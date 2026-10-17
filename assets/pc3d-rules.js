@@ -1,3 +1,4 @@
+import {BOARD_SCREW_COUNT} from './pc3d-layout.js';
 export const PARTS = {
   motherboard:{name:'ATX motherboard',detail:'Seat on standoffs · rear ports align with the rear opening',target:[.79,2.65,-.65],radius:.65},
   cpu:{name:'Desktop CPU',detail:'Align the gold corner · open the socket first',target:[.66,3.13,-.75],radius:.27},
@@ -21,11 +22,11 @@ export const CABLES = {
   audio:{name:'Front audio header',source:'Case · audio',dest:'Motherboard · HD_AUDIO',parts:['motherboard'],from:[-.35,3.98,1.98],to:[.58,1.44,-1.53],color:0x865d95},
   powerSwitch:{name:'Front power switch',source:'Case · power switch',dest:'Motherboard · PWR_SW',parts:['motherboard'],from:[-.2,4.04,1.98],to:[.58,1.44,.18],color:0x9a9b78}
 };
-export function freshState(){return {version:1,installed:[],rotations:{},boardScrews:0,psuScrews:0,coolerScrews:0,socketOpen:false,cpuLatched:false,clips:{ramA2:false,ramB2:false},expansionOpen:false,paste:[],cables:{},panelsOpen:true,powered:false};}
+export function freshState(){return {version:2,installed:[],rotations:{},boardScrews:0,psuScrews:0,coolerScrews:0,socketOpen:false,cpuLatched:false,clips:{ramA2:false,ramB2:false},expansionOpen:false,paste:[],cables:{},panelsOpen:true,powered:false};}
 export function sanitizeState(raw){
-  const s=freshState();if(!raw||raw.version!==1)return s;
+  const s=freshState();if(!raw||raw.version!==2)return s;
   s.installed=[...new Set((Array.isArray(raw.installed)?raw.installed:[]).filter(k=>Object.hasOwn(PARTS,k)))];
-  for(const k of ['boardScrews','psuScrews','coolerScrews'])s[k]=Math.max(0,Math.min(4,Math.floor(Number(raw[k])||0)));
+  for(const k of ['boardScrews','psuScrews','coolerScrews'])s[k]=Math.max(0,Math.min(k==='boardScrews'?BOARD_SCREW_COUNT:4,Math.floor(Number(raw[k])||0)));
   for(const k of ['socketOpen','cpuLatched','expansionOpen','panelsOpen'])s[k]=raw[k]===true;
   for(const k of ['ramA2','ramB2'])s.clips[k]=raw.clips?.[k]===true;
   s.paste=(Array.isArray(raw.paste)?raw.paste:[]).filter(p=>Number.isFinite(p.y)&&Number.isFinite(p.z)&&Math.abs(p.y)<=.19&&Math.abs(p.z)<=.19).slice(0,90);
@@ -42,7 +43,7 @@ export function canInstall(s,key,rotation=0){
   if(key==='motherboard'||key==='psu')return null;
   if(key==='fan'||key==='ssd')return null;
   if(!has(s,'motherboard'))return 'Install the motherboard first.';
-  if(s.boardScrews<4)return 'Secure the motherboard to all four reference mounting points first.';
+  if(s.boardScrews<BOARD_SCREW_COUNT)return 'Secure the motherboard to all nine mounting points first.';
   if(key==='cpu'&&!s.socketOpen)return 'Open the CPU socket retention mechanism first.';
   if(key==='cooler'){
     if(!has(s,'cpu')||!s.cpuLatched)return 'Seat the CPU and latch the socket before fitting the cooler.';
@@ -65,13 +66,13 @@ export function canRemove(s,key){
 export function cableReady(s,key){return CABLES[key].parts.every(k=>has(s,k));}
 export function validate(s){
   const checks=Object.entries(PARTS).map(([k,p])=>({label:p.name,pass:has(s,k)}));
-  checks.push({label:'Motherboard secured on standoffs',pass:s.boardScrews===4},{label:'CPU socket latched',pass:s.cpuLatched&&has(s,'cpu')},{label:'Thermal compound beneath cooler',pass:s.paste.length>=4&&s.paste.length<=40&&has(s,'cooler')},{label:'Cooler mounting secured',pass:s.coolerScrews===4},{label:'Power supply secured',pass:s.psuScrews===4});
+  checks.push({label:'Motherboard secured on standoffs',pass:s.boardScrews===BOARD_SCREW_COUNT},{label:'CPU socket latched',pass:s.cpuLatched&&has(s,'cpu')},{label:'Thermal compound beneath cooler',pass:s.paste.length>=4&&s.paste.length<=40&&has(s,'cooler')},{label:'Cooler mounting secured',pass:s.coolerScrews===4},{label:'Power supply secured',pass:s.psuScrews===4});
   for(const[k,c]of Object.entries(CABLES))checks.push({label:c.name,pass:Array.isArray(s.cables[k])&&cableReady(s,k)});
   return checks;
 }
 export function postChecks(s){
   return [
-    {label:'Motherboard secured',pass:has(s,'motherboard')&&s.boardScrews===4},
+    {label:'Motherboard secured',pass:has(s,'motherboard')&&s.boardScrews===BOARD_SCREW_COUNT},
     {label:'CPU seated and socket latched',pass:has(s,'cpu')&&s.cpuLatched&&!s.socketOpen},
     {label:'CPU cooling and thermal compound',pass:has(s,'cooler')&&s.coolerScrews===4&&s.paste.length>=4&&s.paste.length<=40},
     {label:'Memory detected',pass:has(s,'ramA2')||has(s,'ramB2')},

@@ -4,7 +4,7 @@ const s=freshState();
 assert.match(install(s,'cpu'),/motherboard/);
 assert.equal(install(s,'motherboard'),null);
 assert.match(install(s,'cpu'),/Secure/);
-s.boardScrews=4;
+s.boardScrews=9;
 assert.match(install(s,'cpu'),/Open/);
 s.socketOpen=true;
 assert.match(install(s,'cpu',1),/rotated/);
@@ -31,6 +31,6 @@ s.powered=true;assert.match(canRemove(s,'cooler'),/Switch off/);assert.match(can
 const restored=sanitizeState(JSON.parse(JSON.stringify(s)));
 assert.equal(restored.installed.length,Object.keys(PARTS).length);assert.equal(Object.keys(restored.cables).length,10);assert.equal(restored.powered,false);assert.ok(validate(restored).every(c=>c.pass));
 assert.deepEqual(sanitizeState({version:999}),freshState());
-const corrupt=sanitizeState({version:1,installed:['unknown','cpu','cpu'],paste:[{y:999,z:0},{y:0,z:0}],cables:{unknown:[],atx:[[99,0,0],[1.18,3,0],[NaN,0,0]]}});
+const corrupt=sanitizeState({version:2,installed:['unknown','cpu','cpu'],paste:[{y:999,z:0},{y:0,z:0}],cables:{unknown:[],atx:[[99,0,0],[1.18,3,0],[NaN,0,0]]}});
 assert.deepEqual(corrupt.installed,['cpu']);assert.equal(corrupt.paste.length,1);assert.deepEqual(corrupt.cables.atx,[[1.05,3,0]]);
 console.log('3D assembly rules passed: sequence, orientation, socket, clips, paste amount, cabling, POST separation, removal safety, and saved-state restoration.');

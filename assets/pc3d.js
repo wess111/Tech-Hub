@@ -1,3 +1,4 @@
+import {BOARD_SCREW_COUNT} from './pc3d-layout.js';
 import * as T from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {RoomEnvironment} from './vendor/RoomEnvironment.js';
@@ -5,7 +6,7 @@ import {PARTS,CABLES,freshState,sanitizeState,has,canInstall,install,canRemove,c
 import {materials,box,cylinder,buildCase,makePart,makeConnector} from './pc3d-models.js';
 
 const $=s=>document.querySelector(s),stage=$('#stage'),overlay=$('#anchors');
-const storageKey='tech-hub-3d-build-v1';
+const storageKey='tech-hub-3d-build-v2';
 let state;try{state=sanitizeState(JSON.parse(localStorage.getItem(storageKey)));}catch{state=freshState();}
 let selected=null,mode='assembly',rotation=0,drag=null,pasteTool=false,painting=false,lastPaste=0,cableKey='atx',routing=null,cableDrag=false,routeBehind=false,hoverPoint=null;
 const scene=new T.Scene();scene.background=new T.Color(0x111c23);scene.fog=new T.Fog(0x111c23,20,50);
@@ -66,10 +67,10 @@ function updateInspector(){
   if(pasteTool){$('#selectedName').textContent='Thermal compound';$('#selectedDetail').textContent=`${state.paste.length} application marks. Hold or move over the CPU heat spreader to dispense a small amount. The cooler will spread it across the contact area.`;addAction('Dispense a small centre dot',()=>{for(let i=0;i<7;i++)state.paste.push({y:Math.sin(i*2.4)*.025,z:Math.cos(i*2.4)*.025});changed();message('A small centre dot is on the CPU. Fit and secure the cooler next.','THERMAL COMPOUND');},'');addAction('Wipe thermal compound',()=>{state.paste=[];changed();});addAction('Finish paste application',()=>{pasteTool=false;syringe.visible=false;selected='cooler';view('inside');changed();});renderAnchors();return;}
   if(selected){
     if(!has(state,selected)){addAction('Seat selected part',()=>seat(), '');addAction(`Rotate part · ${rotation*90}°`,()=>{rotation=(rotation+1)%4;updatePartPositions();updateInspector();message('Part orientation: '+rotation*90+'°. Match the socket key.','ORIENTATION');});}
-    if(selected==='motherboard'&&has(state,'motherboard')&&state.boardScrews<4)addAction(`Tighten motherboard screw · ${state.boardScrews}/4`,()=>{state.boardScrews++;changed();message(`Motherboard mounting screw ${state.boardScrews}/4 secured on its standoff.`);},'');
+    if(selected==='motherboard'&&has(state,'motherboard')&&state.boardScrews<BOARD_SCREW_COUNT)addAction(`Tighten motherboard screw · ${state.boardScrews}/${BOARD_SCREW_COUNT}`,()=>{state.boardScrews++;changed();message(`Motherboard mounting screw ${state.boardScrews}/${BOARD_SCREW_COUNT} secured on its standoff.`);},'');
     if(selected==='psu'&&has(state,'psu')&&state.psuScrews<4)addAction(`Tighten PSU screw · ${state.psuScrews}/4`,()=>{state.psuScrews++;changed();},'');
     if(selected==='cooler'&&has(state,'cooler')&&state.coolerScrews<4)addAction(`Tighten cooler mount · ${state.coolerScrews}/4`,()=>{state.coolerScrews++;changed();message('Cooler mounting point secured. Compound is compressed beneath the cold plate.');},'');
-    if((selected==='cpu'||selected==='motherboard')&&has(state,'motherboard')&&!has(state,'cooler'))addAction(state.socketOpen?'Latch CPU socket':'Open CPU socket',()=>{if(state.powered)return message('Switch off the PC first.','SAFETY');state.socketOpen=!state.socketOpen;state.cpuLatched=has(state,'cpu')&&!state.socketOpen;changed();message(state.socketOpen?'Retention frame and lever opened. Align the CPU gold corner with the socket.':'CPU retention mechanism closed.');});
+    if((selected==='cpu'||selected==='motherboard')&&has(state,'motherboard')&&!has(state,'cooler'))addAction(state.socketOpen?'Latch CPU socket':'Open CPU socket',()=>{if(state.powered)return message('Switch off the PC first.','SAFETY');state.socketOpen=!state.socketOpen;state.cpuLatched=has(state,'cpu')&&!state.socketOpen;changed();message(state.socketOpen?'AM4 ZIF lever raised. Align the CPU gold corner with the socket.':'CPU retention mechanism closed.');});
     if(selected.startsWith('ram')&&!has(state,selected)&&has(state,'motherboard'))addAction(state.clips[selected]?'Close memory clips':'Open memory clips',()=>{state.clips[selected]=!state.clips[selected];changed();});
     if(selected==='gpu'&&!has(state,'gpu'))addAction(state.expansionOpen?'Refit expansion covers':'Remove expansion covers',()=>{state.expansionOpen=!state.expansionOpen;changed();message(state.expansionOpen?'Rear expansion covers removed. The GPU bracket can seat at the rear opening.':'Expansion covers refitted.');});
     if(has(state,selected))addAction('Remove selected component',()=>removeSelected(),'danger');
@@ -80,7 +81,7 @@ function updateInspector(){
 function updatePartPositions(){
   keys.forEach((k,i)=>{const p=parts[k];if(drag?.key===k)return;const seated=has(state,k);p.scale.setScalar(seated?1:.42);p.position.copy(seated?new T.Vector3(...PARTS[k].target):staging[k]);p.rotation.set(0,0,0);if(!seated){p.rotation.z=-Math.PI/2;p.rotation.x=i*.25;if(k===selected)p.rotation.x+=rotation*Math.PI/2;}
     if(k==='motherboard'){
-      p.userData.lid.rotation.z=state.socketOpen?-1.6:0;p.userData.lever.rotation.z=state.socketOpen?-.9:0;
+      p.userData.lever.rotation.z=state.socketOpen?-1.45:0;
       p.userData.screws.forEach((m,i)=>m.material=i<state.boardScrews?materials.silver:materials.gold);
       p.userData.clips.forEach((pair,i)=>pair.forEach((m,j)=>m.rotation.z=state.clips[i===0?'ramA2':'ramB2']?(j===0?-.65:.65):0));
     }

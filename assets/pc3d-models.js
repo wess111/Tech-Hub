@@ -1,3 +1,4 @@
+import {BOARD_SIZE,BOARD_MOUNTS} from './pc3d-layout.js';
 import * as T from 'three';
 import {RoundedBoxGeometry} from './vendor/RoundedBoxGeometry.js';
 export const materials={
@@ -45,7 +46,7 @@ export function buildCase(scene){
   decal(group,'TECH-HUB',[.6,4.06,2.22],.55,.1,'z');
   // Tray grommets and standoffs.
   for(const y of [1.3,2.15,3.25]){box(group,[.08,.55,.28],[.93,y,.77],materials.dark);for(let i=0;i<4;i++)box(group,[.085,.012,.22],[.89,y-.16+i*.1,.77],materials.black);}
-  for(const y of [1.5,2.6,3.8])for(const z of [-1.65,.3])cylinder(group,.045,.18,[.88,y,z],materials.gold);
+  for(const [y,z] of BOARD_MOUNTS)cylinder(group,.045,.18,[.88,2.65+y,-.65+z],materials.gold);
   for(const x of [-.8,.8])for(const z of [-1.7,1.7])box(group,[.26,.15,.3],[x,-.08,z],materials.black);
   const panels=new T.Group();group.add(panels);
   const glass=new T.MeshPhysicalMaterial({color:0x6c8391,transparent:true,opacity:.17,metalness:.1,roughness:.15,side:T.DoubleSide,depthWrite:false});
@@ -60,31 +61,45 @@ export function buildCase(scene){
 export function makePart(key){
   const g=new T.Group();g.userData.part=key;
   if(key==='motherboard'){
-    box(g,[.045,2.7,2.3],[0,0,0],materials.board);
-    const pcbTexture=new T.TextureLoader().load('./assets/hardware/parts-atlas.png');pcbTexture.colorSpace=T.SRGBColorSpace;pcbTexture.repeat.set(.30,.325);pcbTexture.offset.set(.027,.65);pcbTexture.anisotropy=8;const pcbFace=new T.Mesh(new T.PlaneGeometry(2.3,2.7),new T.MeshStandardMaterial({map:pcbTexture,metalness:.15,roughness:.65}));pcbFace.rotation.y=-Math.PI/2;pcbFace.position.x=-.045;g.add(pcbFace);
+    box(g,[.016,BOARD_SIZE.height,BOARD_SIZE.width],[0,0,0],materials.board);
+    // Original geometry: no unrelated photograph on the PCB.
     // Copper traces and solder pads on the PCB.
     for(let i=0;i<28;i++){const y=-1.2+i*.086;box(g,[.004,.007,1.12],[-.027,y,-.38+(i%4)*.14],i%3?materials.edge:materials.gold);}
     for(let i=0;i<32;i++)cylinder(g,.014,.009,[-.034,-1.1+(i%8)*.3,-1+(Math.floor(i/8))*.56],materials.silver,'x',6);
-    // CPU socket and retention hinge.
-    box(g,[.07,.59,.59],[-.055,.48,-.1],materials.dark);box(g,[.025,.48,.48],[-.105,.48,-.1],materials.edge);
-    for(let y=-.18;y<=.18;y+=.06)for(let z=-.18;z<=.18;z+=.06)cylinder(g,.007,.005,[-.122,.48+y,-.1+z],materials.gold,'x',5);
-    const lid=new T.Group();lid.position.set(-.105,.76,-.1);g.add(lid);
-    for(const z of [-.25,.25])box(lid,[.025,.5,.035],[0,-.24,z],materials.silver);for(const y of [0,-.48])box(lid,[.025,.03,.52],[0,y,0],materials.silver);g.userData.lid=lid;
-    const lever=box(g,[.035,.66,.035],[-.14,.48,.24],materials.silver);g.userData.lever=lever;
+    // AM4 uses a ZIF lever, without an Intel-style load plate.
+    box(g,[.075,.54,.54],[-.055,.48,-.1],materials.white);
+    box(g,[.012,.45,.45],[-.1,.48,-.1],materials.dark);
+    const holes=new T.InstancedMesh(new T.CylinderGeometry(.004,.004,.006,5),materials.dark,400);
+    const t=new T.Object3D();let n=0;
+    for(let r=0;r<20;r++)for(let c=0;c<20;c++){
+      t.position.set(-.111,.275+r*.0215,-.305+c*.0215);t.rotation.z=Math.PI/2;t.updateMatrix();holes.setMatrixAt(n++,t.matrix);
+    }g.add(holes); // representative field, not a pin-count diagram
+    const lever=new T.Group();lever.position.set(-.12,.78,.22);g.add(lever);
+    cylinder(lever,.012,.58,[0,-.29,0],materials.silver,'y');
+    cylinder(lever,.02,.12,[-.045,-.58,0],materials.silver,'x');g.userData.lever=lever;
+    decal(g,'AM4',[-.12,.48,-.1],.21,.065);
     // VRM heatsinks, capacitors, and labeled header blocks.
     for(const p of [[-.17,.53,-.72],[-.17,1.03,-.1]]){box(g,[.22,.35,.45],p,materials.black);for(let i=0;i<6;i++)box(g,[.24,.022,.43],[p[0]-.01,p[1]-.13+i*.05,p[2]],materials.edge);}
     for(let i=0;i<10;i++)cylinder(g,.039,.09,[-.09,.1+(i%5)*.17,-.75+Math.floor(i/5)*.16],materials.silver);
     for(const z of [.58,.73,.88,1.03]){box(g,[.055,1.45,.065],[-.07,.38,z],materials.dark);box(g,[.005,1.22,.014],[-.102,.38,z],materials.gold);}
     const clips=[];for(const z of [.73,1.03]){const pair=[];for(const y of [-.38,1.14]){const clip=box(g,[.09,.1,.09],[-.09,y,z],materials.white);pair.push(clip);}clips.push(pair);}g.userData.clips=clips;
     for(const y of [-.83,-.59]){box(g,[.07,.08,1.4],[-.08,y,-.13],materials.dark);box(g,[.01,.014,1.25],[-.125,y,-.13],materials.gold);}
-    box(g,[.15,.45,.52],[-.1,-.4,.55],materials.black);decal(g,'HUB / B760',[-.19,-.4,.55],.45,.1);
+    box(g,[.15,.45,.52],[-.1,-.4,.55],materials.black);decal(g,'B550 / REFERENCE',[-.19,-.4,.55],.45,.1);
     for(const y of [.65,.89,1.13]){box(g,[.34,.18,.25],[-.2,y,-1.35],materials.silver);box(g,[.2,.09,.035],[-.2,y,-1.49],materials.dark);}
     for(const y of [.12,.36]){box(g,[.34,.18,.25],[-.2,y,-1.35],materials.silver);box(g,[.2,.08,.025],[-.2,y,-1.49],materials.dark);}
     for(const z of [.96,1.08])box(g,[.13,.18,.11],[-.11,-1.02,z],materials.black);
-    const screws=[];for(const y of [-1.15,1.15])for(const z of [-1.01,1.01])screws.push(screw(g,[-.04,y,z]));g.userData.screws=screws;
-    decal(g,'DDR5',[-.04,-.53,.86],.5,.1);decal(g,'PCIe x16',[-.04,-.72,-.3],.6,.09);
+    const screws=[];for(const [y,z] of BOARD_MOUNTS){
+      const ring=new T.Mesh(new T.TorusGeometry(.043,.009,6,16),materials.silver);ring.rotation.y=Math.PI/2;ring.position.set(-.02,y,z);g.add(ring);
+      screws.push(screw(g,[-.04,y,z]));
+    }g.userData.screws=screws;
+    decal(g,'DDR4',[-.04,-.53,.86],.5,.1);decal(g,'PCIe x16',[-.04,-.72,-.3],.6,.09);
   }else if(key==='cpu'){
-    box(g,[.035,.43,.43],[0,0,0],materials.board);box(g,[.034,.37,.37],[-.027,0,0],materials.silver);decal(g,'CORE',[-.047,0,0],.27,.09);
+    box(g,[.035,.43,.43],[0,0,0],materials.board);box(g,[.034,.37,.37],[-.027,0,0],materials.silver);decal(g,'RYZEN',[-.047,0,0],.27,.09);
+    const pins=new T.InstancedMesh(new T.CylinderGeometry(.003,.003,.025,5),materials.gold,324);
+    const t=new T.Object3D();let n=0;
+    for(let r=0;r<18;r++)for(let c=0;c<18;c++){
+      t.position.set(.03,-.178+r*.021,-.178+c*.021);t.rotation.z=Math.PI/2;t.updateMatrix();pins.setMatrixAt(n++,t.matrix);
+    }g.add(pins); // representative pins, not a complete electrical map
     const shape=new T.Shape();shape.moveTo(0,0);shape.lineTo(.065,0);shape.lineTo(0,.065);shape.closePath();const marker=new T.Mesh(new T.ShapeGeometry(shape),new T.MeshBasicMaterial({color:0xf8d775,side:T.DoubleSide}));marker.rotation.y=-Math.PI/2;marker.position.set(-.048,-.185,-.185);g.add(marker);
   }else if(key==='cooler'){
     box(g,[.05,.4,.4],[.15,0,0],materials.silver);
@@ -96,7 +111,7 @@ export function makePart(key){
     box(g,[.32,1.25,.022],[-.08,0,0],materials.board);box(g,[.28,1.17,.045],[-.12,0,0],materials.black);
     for(let i=0;i<7;i++)box(g,[.24,.1,.012],[-.12,-.46+i*.15,.032],materials.edge);
     for(let i=0;i<22;i++)box(g,[.015,.031,.04],[.027,-.55+i*.05,-.065],materials.gold);
-    const label=decal(g,'DDR5 16GB',[-.1,0,.042],.9,.09,'z');label.rotation.z=Math.PI/2;
+    const label=decal(g,'DDR4 16GB',[-.1,0,.042],.9,.09,'z');label.rotation.z=Math.PI/2;
   }else if(key==='gpu'){
     box(g,[1.35,.045,3.5],[0,0,0],materials.board);box(g,[.15,.035,1.2],[.71,0,-.2],materials.gold);box(g,[1.3,.28,3.45],[0,.18,0],materials.black);
     for(let i=0;i<18;i++)box(g,[1.22,.014,3.35],[0,.04+i*.012,0],materials.edge);
