@@ -3,7 +3,8 @@
   'use strict';
   const script = document.currentScript;
   const base = new URL('../', script.src);
-  const page = location.pathname.split('/').pop() || 'index.html';
+  const rawPage = location.pathname.split('/').pop() || 'index';
+  const page = rawPage.endsWith('.html') ? rawPage : rawPage + '.html';
   const tools = location.pathname.includes('/tools/');
   const labels = {'activity.html':'Incident workspace','assessment.html':'Knowledge assessment','project.html':'Capstone project','simulator.html':'PC Builder','troubleshooting-case.html':'Incident investigation','change-management.html':'Change management','config-report.html':'Configuration report','policy-procedure.html':'Policy & procedure'};
   const title = tools && page==='index.html' ? 'Documentation tools' : labels[page] || 'Learning workspace';

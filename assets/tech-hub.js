@@ -2,9 +2,9 @@
   'use strict';
   const root = document.querySelector('#hub');
   const key = 'tech-hub-progress-v1';
-  const read = () => { try { const v=JSON.parse(localStorage.getItem(key)); return v && typeof v==='object' && !Array.isArray(v) ? v : {}; } catch { return {}; } };
+  const read = () => { try { const v=JSON.parse(localStorage.getItem(key)); return v && typeof v==='object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).map(([k,p])=>[k.replace(/\.html(?=\?|$)/,''),p])) : {}; } catch { return {}; } };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const id = link => { const u = new URL(link, location.href); return u.pathname.split('/').pop() + u.search; };
+  const id = link => { const u = new URL(link, location.href); const page=u.pathname.split('/').pop().replace(/\.html$/,''); const parameter=u.searchParams.has('lab')?'lab':u.searchParams.has('id')?'id':null; return page+(parameter?'?'+parameter+'='+encodeURIComponent(u.searchParams.get(parameter)):''); };
   window.TechHubProgress = {
     record(patch) {
       const all = read(), activityId = id(location.href), before = all[activityId] || {};
