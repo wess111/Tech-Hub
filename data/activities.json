@@ -40,36 +40,36 @@
     "domain": "support-operations",
     "mode": "simulations",
     "difficulty": "beginner",
-    "status": "available",
+    "status": "upcoming",
     "link": "./simulator.html?id=pc-demo",
-    "description": "A simplified instructor-led build for demonstrating component research, compatibility, assembly, POST, validation, and reporting."
+    "description": "A simplified instructor-led build for demonstrating component research, compatibility, assembly, POST, validation, and reporting. Migration to the 3D assembly engine is planned."
   },
   {
-    "title": "Business Workstation Build",
+    "title": "3D PC Assembly Lab",
     "domain": "support-operations",
     "mode": "simulations",
     "difficulty": "beginner",
     "status": "available",
-    "link": "./simulator.html?id=pc-hardware",
-    "description": "Replace a finance workstation while balancing compatibility, integrated graphics, storage, display support, and a strict business budget."
+    "link": "./simulator.html?id=pc-reference",
+    "description": "Rotate the case, drag components into keyed mounting points, operate the CPU socket and memory clips, apply thermal compound, and route ten cable connections."
   },
   {
     "title": "Architectural Design Workstation",
     "domain": "support-operations",
     "mode": "simulations",
     "difficulty": "advanced",
-    "status": "available",
+    "status": "upcoming",
     "link": "./simulator.html?id=pc-architect",
-    "description": "Build a high-performance CAD and rendering workstation with dual-channel memory, strong multicore CPU performance, NVMe storage, and dedicated graphics."
+    "description": "Build a high-performance CAD and rendering workstation with dual-channel memory, strong multicore CPU performance, NVMe storage, and dedicated graphics. Migration to the 3D assembly engine is planned."
   },
   {
     "title": "1440p Gaming PC Build",
     "domain": "support-operations",
     "mode": "simulations",
     "difficulty": "intermediate",
-    "status": "available",
+    "status": "upcoming",
     "link": "./simulator.html?id=pc-gaming",
-    "description": "Build a balanced gaming PC using Intel or AMD platforms, dual-channel memory, dedicated NVIDIA or Radeon graphics, cooling, and power decisions."
+    "description": "Build a balanced gaming PC using Intel or AMD platforms, dual-channel memory, dedicated NVIDIA or Radeon graphics, cooling, and power decisions. Migration to the 3D assembly engine is planned."
   },
   {
     "title": "Cloud Tenant Provisioning",

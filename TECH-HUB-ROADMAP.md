@@ -46,3 +46,10 @@ Run `node scripts/build-static.cjs`. Sites uses the generated `dist/` directory.
 - Browser validation: complete $581 workstation build reached POST PASS and 7/7 requirements; motherboard and CPU persisted across refresh; assessment navigation, capstone review, and Word export worked; mobile PC Builder at 390px showed no horizontal overflow.
 
 Remaining: accounts, synchronized progress, achievements and verified competitive rankings. Images illustrate categories rather than exact product models. Free rotation and physical 3D geometry are not implemented.
+## 3D engineering prototype
+
+The primary PC Builder route now uses a new Three.js assembly engine rather than the image-based workbench. It supports orbit and preset views, component drag/drop, keyed alignment, CPU retention and memory clips, compound deposition, ten physical cable routes, and browser-local restoration. POST requirements are evaluated separately from full build completion.
+
+The interaction prototype passed a complete assembly flow, including native drag tests for the motherboard, CPU and ATX cable, freehand thermal-compound application, ten cable connections, POST and save/restore. Rule tests cover invalid sequence, orientation, socket, clips, paste amount, removal safety and state restoration.
+
+The user has rejected the procedural hardware's visual fidelity as insufficient for college students. It is explicitly labeled an engineering prototype. The release standard and asset work are documented in docs/COLLEGE-SIMULATOR-QUALITY.md. Detailed, dimensionally verified hardware assets and instructor validation remain required. Only the common 3D reference build is presented as available; the previous scenario variants await migration.
