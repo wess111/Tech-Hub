@@ -37,3 +37,9 @@ Export named empty nodes for each mating point, mounting point and rotation pivo
 4. Migrate existing scenarios individually with their actual platform models and isolated saved progress. Reuse a model only when the physical SKU is genuinely the same.
 
 Passing compatibility unit tests does not pass any visual-quality gate. The live procedural renderer remains an engineering prototype until the asset and teaching reviews pass.
+
+## Restored scenario planning
+
+The simulator now opens a scenario planner using all four original entries in `data/simulations.json`. It includes every existing catalogue option, four independent DIMM slots, per-module prices, workload and compatibility feedback, budget totals, per-scenario local plans and JSON export. `node scripts/check-pc-planner.mjs` verifies viable plans in every scenario and mismatch handling.
+
+The 3D workbench has an expanded inspection mode and a closer default camera. Exact selected SKUs are not yet rendered there. The planner explicitly links to the retained 2D assembly workflow and states that its saves are separate. Planning checks never award scenario completion or certify POST/physical clearance. Case choice is not yet in the retained catalogue. All four scenarios are discoverable again in the lab explorer, alongside the separate 3D reference.
